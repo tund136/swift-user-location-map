@@ -29,5 +29,14 @@ struct ContentView_Previews: PreviewProvider {
 }
 
 final class ContentViewModel: ObservableObject {
+    var locationManager: CLLocationManager?
     
+    func checkIfLocationServicesEnabled() {
+        if CLLocationManager.locationServicesEnabled() {
+            locationManager = CLLocationManager()
+            locationManager?.desiredAccuracy = kCLLocationAccuracyBest
+        } else {
+            print("Show an alert letting them know this is off and to go turn it on.")
+        }
+    }
 }
