@@ -34,9 +34,27 @@ final class ContentViewModel: ObservableObject {
     func checkIfLocationServicesEnabled() {
         if CLLocationManager.locationServicesEnabled() {
             locationManager = CLLocationManager()
-            locationManager?.desiredAccuracy = kCLLocationAccuracyBest
         } else {
             print("Show an alert letting them know this is off and to go turn it on.")
+        }
+    }
+    
+    func checkLocationAuthorization() {
+        guard let locationManager = locationManager else {
+            return
+        }
+        
+        switch locationManager.authorizationStatus {
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+        case .restricted:
+            print("Your location is restricted likely due to parental controls.")
+        case .denied:
+            print("You have denied this app location permission. Go into settings to change it.")
+        case .authorizedAlways, .authorizedWhenInUse:
+            break
+        @unknown default:
+            break
         }
     }
 }
