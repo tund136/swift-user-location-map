@@ -28,12 +28,13 @@ struct ContentView_Previews: PreviewProvider {
     }
 }
 
-final class ContentViewModel: ObservableObject {
+final class ContentViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     var locationManager: CLLocationManager?
     
     func checkIfLocationServicesEnabled() {
         if CLLocationManager.locationServicesEnabled() {
             locationManager = CLLocationManager()
+            locationManager?.delegate = self
         } else {
             print("Show an alert letting them know this is off and to go turn it on.")
         }
@@ -56,5 +57,9 @@ final class ContentViewModel: ObservableObject {
         @unknown default:
             break
         }
+    }
+    
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        checkLocationAuthorization()
     }
 }
