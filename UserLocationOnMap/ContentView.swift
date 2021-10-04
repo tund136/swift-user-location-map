@@ -11,14 +11,13 @@ import MapKit
 struct ContentView: View {
     @StateObject private var viewModel = ContentViewModel()
     
-    @State private var region = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 37.331516, longitude: -121.891504),
-        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-    )
-    
     var body: some View {
-        Map(coordinateRegion: $region, showsUserLocation: true)
+        Map(coordinateRegion: $viewModel.region, showsUserLocation: true)
             .ignoresSafeArea()
+            .accentColor(Color(.systemPink))
+            .onAppear {
+                viewModel.checkIfLocationServicesEnabled()
+            }
     }
 }
 
@@ -29,6 +28,11 @@ struct ContentView_Previews: PreviewProvider {
 }
 
 final class ContentViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
+    @Published var region = MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: 37.331516, longitude: -121.891504),
+        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+    )
+    
     var locationManager: CLLocationManager?
     
     func checkIfLocationServicesEnabled() {
@@ -40,7 +44,7 @@ final class ContentViewModel: NSObject, ObservableObject, CLLocationManagerDeleg
         }
     }
     
-    func checkLocationAuthorization() {
+    private func checkLocationAuthorization() {
         guard let locationManager = locationManager else {
             return
         }
@@ -53,7 +57,10 @@ final class ContentViewModel: NSObject, ObservableObject, CLLocationManagerDeleg
         case .denied:
             print("You have denied this app location permission. Go into settings to change it.")
         case .authorizedAlways, .authorizedWhenInUse:
-            break
+            region = MKCoordinateRegion(
+                center: locationManager.location!.coordinate,
+                span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+            )
         @unknown default:
             break
         }
